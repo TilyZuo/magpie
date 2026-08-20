@@ -31,10 +31,12 @@ const els = {
   bubbleOverlay: document.getElementById("bubble-overlay"),
   bubbleStage: document.getElementById("bubble-stage"),
   bubbleClose: document.getElementById("bubble-close"),
+  catFilter: document.getElementById("cat-filter"),
 };
 
 let notes = [];
 let filter = "";
+let categoryFilter = null;
 
 init();
 
@@ -66,6 +68,20 @@ async function init() {
   els.bubbleClose.addEventListener("click", closeBubbleMap);
   els.bubbleOverlay.addEventListener("click", (e) => {
     if (e.target === els.bubbleOverlay) closeBubbleMap();
+  });
+  // Click a bubble to filter the notebook to that category.
+  els.bubbleStage.addEventListener("click", (e) => {
+    const hit = e.target.closest("[data-cat]");
+    if (!hit) return;
+    categoryFilter = hit.getAttribute("data-cat");
+    closeBubbleMap();
+    render();
+  });
+  els.catFilter.addEventListener("click", (e) => {
+    if (e.target.closest("#clear-cat")) {
+      categoryFilter = null;
+      render();
+    }
   });
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !els.bubbleOverlay.classList.contains("hidden")) {
@@ -265,8 +281,8 @@ async function importNotes(e) {
 // ---- Category bubble map ----------------------------------------------
 
 const BUBBLE_PALETTE = [
-  "#e8639a", "#5aa06e", "#e0574e", "#7b6cf0",
-  "#5b7be0", "#e98a3f", "#e7b84e", "#d16ba5", "#4cc0b4",
+  "#ff6fae", "#5fd08a", "#ff6b6b", "#a77bff",
+  "#6f8cff", "#ff9d4d", "#ffcf4d", "#f072d0", "#4ececb",
 ];
 
 function openBubbleMap() {
@@ -319,12 +335,22 @@ function buildBubbleMap() {
       (c, i) =>
         `<radialGradient id="bg${i}" cx="50%" cy="50%" r="50%">` +
         `<stop offset="0" stop-color="${c.color}"/>` +
+        `<stop offset="0.55" stop-color="${c.color}"/>` +
         `<stop offset="1" stop-color="${c.color}" stop-opacity="0"/></radialGradient>`
     )
     .join("");
 
   const colorBlobs = cats
-    .map((c, i) => `<circle cx="${r1(c.x)}" cy="${r1(c.y)}" r="${r1(c.r * 2.2)}" fill="url(#bg${i})"/>`)
+    .map((c, i) => `<circle cx="${r1(c.x)}" cy="${r1(c.y)}" r="${r1(c.r * 2.1)}" fill="url(#bg${i})"/>`)
+    .join("");
+
+  // Transparent circles on top capture clicks per category.
+  const hits = cats
+    .map(
+      (c) =>
+        `<circle class="bubble-hit" data-cat="${escapeAttr(c.name)}" cx="${r1(c.x)}" ` +
+        `cy="${r1(c.y)}" r="${r1(c.r)}" fill="#fff" opacity="0" pointer-events="all"/>`
+    )
     .join("");
 
   const labels = cats
@@ -349,10 +375,11 @@ function buildBubbleMap() {
     `<mask id="blobmask"><g filter="url(#goo)">${whiteCircles}</g></mask>` +
     `</defs>` +
     `<g mask="url(#blobmask)">` +
-    `<rect x="0" y="0" width="${W}" height="${H}" fill="#c7b4d8"/>` +
+    `<rect x="0" y="0" width="${W}" height="${H}" fill="#e6dcef"/>` +
     `<g>${colorBlobs}</g>` +
     `</g>` +
     labels +
+    hits +
     `</svg>`
   );
 }
@@ -362,12 +389,18 @@ function r1(n) {
 }
 
 function visibleNotes() {
-  if (!filter) return notes;
-  return notes.filter((n) =>
-    (n.text + " " + (n.summary || "") + " " + (n.category || "") + " " + (n.title || ""))
-      .toLowerCase()
-      .includes(filter)
-  );
+  let list = notes;
+  if (categoryFilter) {
+    list = list.filter((n) => (n.category || "Inbox") === categoryFilter);
+  }
+  if (filter) {
+    list = list.filter((n) =>
+      (n.text + " " + (n.summary || "") + " " + (n.category || "") + " " + (n.title || ""))
+        .toLowerCase()
+        .includes(filter)
+    );
+  }
+  return list;
 }
 
 function render() {
@@ -378,6 +411,17 @@ function render() {
 
   els.empty.classList.toggle("hidden", notes.length !== 0);
   els.mapBtn.classList.toggle("hidden", notes.length === 0);
+
+  if (categoryFilter) {
+    els.catFilter.classList.remove("hidden");
+    els.catFilter.innerHTML =
+      `Showing <strong>${escapeHtml(categoryFilter)}</strong> ` +
+      `<button id="clear-cat" type="button">✕ clear filter</button>`;
+  } else {
+    els.catFilter.classList.add("hidden");
+    els.catFilter.innerHTML = "";
+  }
+
   els.board.innerHTML = "";
 
   if (list.length === 0) return;
