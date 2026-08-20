@@ -21,6 +21,7 @@
       </div>
       <div class="actions">
         <input id="search" type="search" placeholder="Search notes…" />
+        <button id="map-btn" class="ghost hidden" title="Category map">🫧 Map</button>
         <button id="triage-btn" class="primary">Triage <span id="untriaged-count" class="pill"></span></button>
         <button id="settings-btn" class="ghost" title="Settings">⚙</button>
       </div>
@@ -68,6 +69,12 @@
         </div>
       </form>
     </dialog>
+
+    <!-- Category bubble map -->
+    <div id="bubble-overlay" class="bubble-overlay hidden">
+      <div id="bubble-stage" class="bubble-stage"></div>
+      <button id="bubble-close" class="bubble-close" title="Close">✕</button>
+    </div>
 
     <script src="notebook.js"></script>
   </body>

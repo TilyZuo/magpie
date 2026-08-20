@@ -227,3 +227,44 @@ dialog::backdrop { background: rgba(15, 23, 42, 0.4); }
 .settings-buttons { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
 .sep { border: none; border-top: 1px solid var(--line); margin: 14px 0 2px; }
 .backup-row { display: flex; gap: 8px; }
+
+/* Category bubble map */
+.bubble-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: #ece7cb;
+  animation: fade 0.18s ease;
+}
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.bubble-stage {
+  width: min(92vw, 620px);
+  max-height: 78vh;
+}
+.bubble-stage svg { width: 100%; height: 100%; display: block; }
+.bubble-label {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-weight: 700;
+  fill: #16181d;
+  paint-order: stroke;
+  pointer-events: none;
+}
+.bubble-count { font-weight: 600; fill: #16181d; opacity: 0.6; }
+.bubble-close {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: #1c1f26;
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+.bubble-close:hover { background: #000; }

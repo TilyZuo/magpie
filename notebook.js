@@ -27,6 +27,10 @@ const els = {
   exportBtn: document.getElementById("export-btn"),
   importBtn: document.getElementById("import-btn"),
   importFile: document.getElementById("import-file"),
+  mapBtn: document.getElementById("map-btn"),
+  bubbleOverlay: document.getElementById("bubble-overlay"),
+  bubbleStage: document.getElementById("bubble-stage"),
+  bubbleClose: document.getElementById("bubble-close"),
 };
 
 let notes = [];
@@ -57,6 +61,17 @@ async function init() {
   els.exportBtn.addEventListener("click", exportNotes);
   els.importBtn.addEventListener("click", () => els.importFile.click());
   els.importFile.addEventListener("change", importNotes);
+
+  els.mapBtn.addEventListener("click", openBubbleMap);
+  els.bubbleClose.addEventListener("click", closeBubbleMap);
+  els.bubbleOverlay.addEventListener("click", (e) => {
+    if (e.target === els.bubbleOverlay) closeBubbleMap();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !els.bubbleOverlay.classList.contains("hidden")) {
+      closeBubbleMap();
+    }
+  });
   els.triageBtn.addEventListener("click", triageAll);
   els.board.addEventListener("click", onBoardClick);
 
@@ -247,6 +262,105 @@ async function importNotes(e) {
   }
 }
 
+// ---- Category bubble map ----------------------------------------------
+
+const BUBBLE_PALETTE = [
+  "#e8639a", "#5aa06e", "#e0574e", "#7b6cf0",
+  "#5b7be0", "#e98a3f", "#e7b84e", "#d16ba5", "#4cc0b4",
+];
+
+function openBubbleMap() {
+  els.bubbleStage.innerHTML = buildBubbleMap();
+  els.bubbleOverlay.classList.remove("hidden");
+}
+
+function closeBubbleMap() {
+  els.bubbleOverlay.classList.add("hidden");
+  els.bubbleStage.innerHTML = "";
+}
+
+function buildBubbleMap() {
+  const counts = new Map();
+  for (const n of notes) {
+    const k = n.category || "Inbox";
+    counts.set(k, (counts.get(k) || 0) + 1);
+  }
+  let cats = [...counts.entries()].map(([name, count]) => ({ name, count }));
+  if (!cats.length) return "";
+  cats.sort((a, b) => b.count - a.count);
+
+  const W = 700, H = 720, cx = W / 2, cy = H / 2;
+  const maxC = Math.max(...cats.map((c) => c.count));
+  cats.forEach((c, i) => {
+    c.r = 46 + 44 * Math.sqrt(c.count / maxC);
+    c.color = BUBBLE_PALETTE[i % BUBBLE_PALETTE.length];
+  });
+
+  // Largest sits in the center; the rest orbit it, each overlapping the
+  // central mass so the goo filter fuses everything into one blob.
+  const center = cats[0];
+  center.x = cx;
+  center.y = cy;
+  const rest = cats.slice(1);
+  const start = -Math.PI / 2 + 0.5;
+  rest.forEach((c, i) => {
+    const ang = start + (i / rest.length) * 2 * Math.PI;
+    const dist = center.r + c.r - 20; // overlap the center bubble
+    c.x = cx + dist * Math.cos(ang);
+    c.y = cy + dist * Math.sin(ang) * 1.04;
+  });
+
+  const whiteCircles = cats
+    .map((c) => `<circle cx="${r1(c.x)}" cy="${r1(c.y)}" r="${r1(c.r)}" fill="#fff"/>`)
+    .join("");
+
+  const grads = cats
+    .map(
+      (c, i) =>
+        `<radialGradient id="bg${i}" cx="50%" cy="50%" r="50%">` +
+        `<stop offset="0" stop-color="${c.color}"/>` +
+        `<stop offset="1" stop-color="${c.color}" stop-opacity="0"/></radialGradient>`
+    )
+    .join("");
+
+  const colorBlobs = cats
+    .map((c, i) => `<circle cx="${r1(c.x)}" cy="${r1(c.y)}" r="${r1(c.r * 2.2)}" fill="url(#bg${i})"/>`)
+    .join("");
+
+  const labels = cats
+    .map((c) => {
+      const fs = Math.max(15, Math.min(28, 13 + c.r * 0.18));
+      return (
+        `<text x="${r1(c.x)}" y="${r1(c.y - 6)}" text-anchor="middle" ` +
+        `dominant-baseline="central" class="bubble-label" font-size="${r1(fs)}">` +
+        `${escapeHtml(c.name)}</text>` +
+        `<text x="${r1(c.x)}" y="${r1(c.y + fs * 0.9)}" text-anchor="middle" ` +
+        `dominant-baseline="central" class="bubble-count" font-size="${r1(fs * 0.6)}">${c.count}</text>`
+      );
+    })
+    .join("");
+
+  return (
+    `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">` +
+    `<defs>` +
+    `<filter id="goo"><feGaussianBlur in="SourceGraphic" stdDeviation="17" result="b"/>` +
+    `<feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 26 -12"/></filter>` +
+    grads +
+    `<mask id="blobmask"><g filter="url(#goo)">${whiteCircles}</g></mask>` +
+    `</defs>` +
+    `<g mask="url(#blobmask)">` +
+    `<rect x="0" y="0" width="${W}" height="${H}" fill="#c7b4d8"/>` +
+    `<g>${colorBlobs}</g>` +
+    `</g>` +
+    labels +
+    `</svg>`
+  );
+}
+
+function r1(n) {
+  return Math.round(n * 10) / 10;
+}
+
 function visibleNotes() {
   if (!filter) return notes;
   return notes.filter((n) =>
@@ -263,6 +377,7 @@ function render() {
   els.triageBtn.disabled = untriaged === 0;
 
   els.empty.classList.toggle("hidden", notes.length !== 0);
+  els.mapBtn.classList.toggle("hidden", notes.length === 0);
   els.board.innerHTML = "";
 
   if (list.length === 0) return;
