@@ -3,14 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Notebook</title>
+    <title>Magpie</title>
     <link rel="stylesheet" href="notebook.css" />
   </head>
   <body>
     <header class="topbar">
       <div class="brand">
-        <span class="dot"></span>
-        <h1>Notebook</h1>
+        <svg class="logo" viewBox="-10 -10 128 128" aria-hidden="true">
+          <g fill="currentColor">
+            <path d="M27 71 C19 63 23 50 38 52 C60 55 84 50 106 29 C89 51 71 64 54 71 C44 75 33 77 27 71 Z"/>
+            <path d="M45 54 C51 39 66 33 75 41 C66 50 56 55 45 55 Z"/>
+            <path d="M29 65 L16 68 L29 71 Z"/>
+            <path d="M9 60 L17 68 L9 76 L1 68 Z"/>
+          </g>
+        </svg>
+        <h1>Magpie</h1>
       </div>
       <div class="actions">
         <input id="search" type="search" placeholder="Search notes…" />
@@ -25,7 +32,7 @@
 
     <p id="empty" class="empty hidden">
       No notes yet. Highlight text on any page, right-click, and choose
-      <strong>“Send to Notebook”.</strong>
+      <strong>“Send to Magpie”.</strong>
     </p>
 
     <!-- Settings dialog -->

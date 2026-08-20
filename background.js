@@ -5,14 +5,14 @@ chrome.runtime.onInstalled.addListener(() => {
   // Shows only when text is highlighted.
   chrome.contextMenus.create({
     id: MENU_TEXT,
-    title: "Send to Notebook",
+    title: "Send to Magpie",
     contexts: ["selection"],
   });
   // Shows only when nothing is selected (Chrome's "page" context excludes
   // selection/link/image), so the two items never appear together.
   chrome.contextMenus.create({
     id: MENU_LINK,
-    title: "Save page link to Notebook",
+    title: "Save page link to Magpie",
     contexts: ["page"],
   });
   refreshBadge();

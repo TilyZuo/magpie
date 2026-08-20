@@ -1,0 +1,18 @@
+<svg width="240" height="240" viewBox="-10 -10 128 128" xmlns="http://www.w3.org/2000/svg">
+  <g fill="#111827">
+    <!-- body + long magpie tail, one sweeping shape -->
+    <path d="M27 71
+             C19 63 23 50 38 52
+             C60 55 84 50 106 29
+             C89 51 71 64 54 71
+             C44 75 33 77 27 71 Z"/>
+    <!-- raised wing (separate leaf, negative space between it and body) -->
+    <path d="M45 54
+             C51 39 66 33 75 41
+             C66 50 56 55 45 55 Z"/>
+    <!-- beak -->
+    <path d="M29 65 L16 68 L29 71 Z"/>
+    <!-- diamond held in the beak -->
+    <path d="M9 60 L17 68 L9 76 L1 68 Z"/>
+  </g>
+</svg>
