@@ -71,11 +71,14 @@
       </form>
     </dialog>
 
-    <!-- Category bubble map -->
-    <div id="bubble-overlay" class="bubble-overlay hidden">
+    <!-- Category bubble map (right panel) -->
+    <aside id="bubble-panel" class="bubble-panel hidden">
+      <div class="panel-head">
+        <span>Categories</span>
+        <button id="bubble-close" class="panel-close" title="Close">✕</button>
+      </div>
       <div id="bubble-stage" class="bubble-stage"></div>
-      <button id="bubble-close" class="bubble-close" title="Close">✕</button>
-    </div>
+    </aside>
 
     <script src="notebook.js"></script>
   </body>

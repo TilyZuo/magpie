@@ -223,21 +223,53 @@ dialog::backdrop { background: rgba(30, 25, 10, 0.4); }
 .sep { border: none; border-top: 1px solid var(--line); margin: 14px 0 2px; }
 .backup-row { display: flex; gap: 8px; }
 
-/* Category bubble map */
-.bubble-overlay {
+/* Category bubble map — right panel */
+.bubble-panel {
   position: fixed;
-  inset: 0;
-  z-index: 50;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(420px, 92vw);
+  z-index: 40;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
+  gap: 8px;
+  padding: 16px 18px 24px;
   background: var(--bg);
-  animation: fade 0.18s ease;
+  border-left: 1px solid var(--line);
+  box-shadow: -10px 0 32px rgba(60, 50, 20, 0.12);
+  animation: slidein 0.2s ease;
+  overflow-y: auto;
 }
-@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-.bubble-stage { width: min(92vw, 620px); max-height: 78vh; }
+@keyframes slidein { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+/* Make room so the panel doesn't cover notes */
+body.panel-open { padding-right: min(420px, 92vw); }
+body { transition: padding-right 0.2s ease; }
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.panel-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+.panel-close:hover { background: #f3efdf; }
+
+.bubble-stage { width: 100%; margin: auto 0; }
 .bubble-stage svg { width: 100%; height: 100%; display: block; }
 .bubble-hit { cursor: pointer; }
 .bubble-label {
@@ -247,16 +279,3 @@ dialog::backdrop { background: rgba(30, 25, 10, 0.4); }
   pointer-events: none;
 }
 .bubble-count { font-weight: 600; fill: #16181d; opacity: 0.55; pointer-events: none; }
-.bubble-close {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  border: none;
-  background: var(--dark);
-  color: #fff;
-  font-size: 20px;
-  line-height: 1;
-  cursor: pointer;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
-}
-.bubble-close:hover { background: #000; }

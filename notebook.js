@@ -28,7 +28,7 @@ const els = {
   importBtn: document.getElementById("import-btn"),
   importFile: document.getElementById("import-file"),
   mapBtn: document.getElementById("map-btn"),
-  bubbleOverlay: document.getElementById("bubble-overlay"),
+  bubblePanel: document.getElementById("bubble-panel"),
   bubbleStage: document.getElementById("bubble-stage"),
   bubbleClose: document.getElementById("bubble-close"),
   catFilter: document.getElementById("cat-filter"),
@@ -60,21 +60,24 @@ async function init() {
   });
   els.settingsBtn.addEventListener("click", () => els.settings.showModal());
   els.saveSettings.addEventListener("click", saveSettings);
+  // Persist the key/model the moment they change, so triage never has to ask.
+  els.apiKey.addEventListener("change", () =>
+    chrome.storage.local.set({ apiKey: els.apiKey.value.trim() })
+  );
+  els.model.addEventListener("change", () =>
+    chrome.storage.local.set({ model: els.model.value })
+  );
   els.exportBtn.addEventListener("click", exportNotes);
   els.importBtn.addEventListener("click", () => els.importFile.click());
   els.importFile.addEventListener("change", importNotes);
 
-  els.mapBtn.addEventListener("click", openBubbleMap);
+  els.mapBtn.addEventListener("click", toggleBubbleMap);
   els.bubbleClose.addEventListener("click", closeBubbleMap);
-  els.bubbleOverlay.addEventListener("click", (e) => {
-    if (e.target === els.bubbleOverlay) closeBubbleMap();
-  });
-  // Click a bubble to filter the notebook to that category.
+  // Click a bubble to filter the notebook to that category (panel stays open).
   els.bubbleStage.addEventListener("click", (e) => {
     const hit = e.target.closest("[data-cat]");
     if (!hit) return;
     categoryFilter = hit.getAttribute("data-cat");
-    closeBubbleMap();
     render();
   });
   els.catFilter.addEventListener("click", (e) => {
@@ -84,7 +87,7 @@ async function init() {
     }
   });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && !els.bubbleOverlay.classList.contains("hidden")) {
+    if (e.key === "Escape" && !els.bubblePanel.classList.contains("hidden")) {
       closeBubbleMap();
     }
   });
@@ -285,13 +288,20 @@ const BUBBLE_PALETTE = [
   "#6f8cff", "#ff9d4d", "#ffcf4d", "#f072d0", "#4ececb",
 ];
 
+function toggleBubbleMap() {
+  if (els.bubblePanel.classList.contains("hidden")) openBubbleMap();
+  else closeBubbleMap();
+}
+
 function openBubbleMap() {
   els.bubbleStage.innerHTML = buildBubbleMap();
-  els.bubbleOverlay.classList.remove("hidden");
+  els.bubblePanel.classList.remove("hidden");
+  document.body.classList.add("panel-open");
 }
 
 function closeBubbleMap() {
-  els.bubbleOverlay.classList.add("hidden");
+  els.bubblePanel.classList.add("hidden");
+  document.body.classList.remove("panel-open");
   els.bubbleStage.innerHTML = "";
 }
 
