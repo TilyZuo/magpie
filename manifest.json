@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Text Grabber → Notebook",
+  "version": "0.1.0",
+  "description": "Highlight text on any page, right-click to send it to your local AI-triaged notebook.",
+  "permissions": ["contextMenus", "storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Open Notebook"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

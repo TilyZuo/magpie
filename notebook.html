@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notebook</title>
+    <link rel="stylesheet" href="notebook.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="dot"></span>
+        <h1>Notebook</h1>
+      </div>
+      <div class="actions">
+        <input id="search" type="search" placeholder="Search notes…" />
+        <button id="triage-btn" class="primary">Triage <span id="untriaged-count" class="pill"></span></button>
+        <button id="settings-btn" class="ghost" title="Settings">⚙</button>
+      </div>
+    </header>
+
+    <div id="status" class="status hidden"></div>
+
+    <main id="board" class="board"></main>
+
+    <p id="empty" class="empty hidden">
+      No notes yet. Highlight text on any page, right-click, and choose
+      <strong>“Send to Notebook”.</strong>
+    </p>
+
+    <!-- Settings dialog -->
+    <dialog id="settings">
+      <form method="dialog" class="settings-form">
+        <h2>Settings</h2>
+        <label for="api-key">Anthropic API key</label>
+        <input id="api-key" type="password" placeholder="sk-ant-…" autocomplete="off" />
+        <p class="hint">
+          Stored locally in this browser only. Used to auto-categorize notes via
+          Claude. Get one at console.anthropic.com.
+        </p>
+        <label for="model">Model</label>
+        <select id="model">
+          <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (fast, cheap)</option>
+          <option value="claude-sonnet-4-6">Claude Sonnet 4.6 (smarter)</option>
+        </select>
+        <div class="settings-buttons">
+          <button value="cancel" class="ghost">Cancel</button>
+          <button id="save-settings" value="default" class="primary">Save</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="notebook.js"></script>
+  </body>
+</html>
