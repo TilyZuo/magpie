@@ -50,6 +50,18 @@
           <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (fast, cheap)</option>
           <option value="claude-sonnet-4-6">Claude Sonnet 4.6 (smarter)</option>
         </select>
+        <hr class="sep" />
+        <label>Backup</label>
+        <div class="backup-row">
+          <button type="button" id="export-btn" class="ghost">⬇ Export notes</button>
+          <button type="button" id="import-btn" class="ghost">⬆ Import…</button>
+          <input id="import-file" type="file" accept="application/json,.json" hidden />
+        </div>
+        <p class="hint">
+          Export saves all notes to a JSON file (no API key included). Import
+          merges notes from a file, skipping duplicates.
+        </p>
+
         <div class="settings-buttons">
           <button value="cancel" class="ghost">Cancel</button>
           <button id="save-settings" value="default" class="primary">Save</button>

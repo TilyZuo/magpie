@@ -3,6 +3,7 @@
   "name": "Magpie",
   "version": "0.1.0",
   "description": "Highlight web text or a link, right-click to stash it in your local AI-triaged notebook.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA6VetSUo1YtCAQxAwK/VMubP98ksCe0aYlQGVxFlKFHPFjivKI7XXtiOPIgCDKqpfQ2/YfTkp4gnY162dWVtEjy7EUKGA5I/Cpb7jsbZTTdd3hLuehdWfVP/wKidUB5Ipu4pT9I/S83NJe2qiMqRhxUz/j905d7Tf32dYtknCR3Gi90feia4MiGikf4J+0hW4Sfrc4wuf4gUWTRdBsE15Zq6Z9TPtxVkZWJ14VPGEztiSdbcSCiNvxCNRvwzgh2kpcTCe5ex5K0+1laUXUEWCybL2AJvlUuJw4Nk00JzB3ktJ1gbZ6EyU+MVWoZ5O1JFEhpx2YpLKSsX0XLdhAia/BwIDAQAB",
   "permissions": ["contextMenus", "storage"],
   "background": {
     "service_worker": "background.js"

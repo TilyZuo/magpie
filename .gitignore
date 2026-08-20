@@ -3,3 +3,7 @@
 
 # Local packaging artifacts
 *.zip
+
+# Private signing key — the PUBLIC key lives in manifest.json ("key") and is
+# safe to commit; this private key is not.
+key.pem

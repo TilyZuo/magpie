@@ -24,6 +24,9 @@ const els = {
   apiKey: document.getElementById("api-key"),
   model: document.getElementById("model"),
   saveSettings: document.getElementById("save-settings"),
+  exportBtn: document.getElementById("export-btn"),
+  importBtn: document.getElementById("import-btn"),
+  importFile: document.getElementById("import-file"),
 };
 
 let notes = [];
@@ -51,6 +54,9 @@ async function init() {
   });
   els.settingsBtn.addEventListener("click", () => els.settings.showModal());
   els.saveSettings.addEventListener("click", saveSettings);
+  els.exportBtn.addEventListener("click", exportNotes);
+  els.importBtn.addEventListener("click", () => els.importFile.click());
+  els.importFile.addEventListener("change", importNotes);
   els.triageBtn.addEventListener("click", triageAll);
   els.board.addEventListener("click", onBoardClick);
 
@@ -167,6 +173,78 @@ async function saveSettings(e) {
     apiKey: els.apiKey.value.trim(),
     model: els.model.value,
   });
+}
+
+async function exportNotes() {
+  const { notes: allNotes = [], corrections = [] } = await chrome.storage.local.get([
+    "notes",
+    "corrections",
+  ]);
+  // Deliberately excludes the API key.
+  const payload = {
+    app: "magpie",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    notes: allNotes,
+    corrections,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `magpie-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  showStatus(`Exported ${allNotes.length} note(s).`);
+  setTimeout(() => els.status.classList.add("hidden"), 2500);
+}
+
+async function importNotes(e) {
+  const file = e.target.files && e.target.files[0];
+  e.target.value = ""; // allow re-picking the same file later
+  if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    const incoming = Array.isArray(data) ? data : data.notes;
+    if (!Array.isArray(incoming)) throw new Error("no notes array in file");
+
+    // Merge by id; skip notes already present.
+    const byId = new Map(notes.map((n) => [n.id, n]));
+    let added = 0;
+    for (const n of incoming) {
+      if (!n || typeof n.text === "undefined") continue;
+      const id = n.id || crypto.randomUUID();
+      if (byId.has(id)) continue;
+      byId.set(id, {
+        id,
+        text: n.text || "",
+        url: n.url || "",
+        title: n.title || "",
+        createdAt: n.createdAt || Date.now(),
+        category: n.category ?? null,
+        summary: n.summary ?? null,
+        aiCategory: n.aiCategory ?? null,
+        reason: n.reason ?? null,
+      });
+      added++;
+    }
+    notes = [...byId.values()].sort((a, b) => b.createdAt - a.createdAt);
+
+    const toSet = { notes };
+    if (Array.isArray(data.corrections) && data.corrections.length) {
+      const { corrections = [] } = await chrome.storage.local.get("corrections");
+      toSet.corrections = [...data.corrections, ...corrections].slice(0, 500);
+    }
+    await chrome.storage.local.set(toSet);
+    render();
+    showStatus(`Imported ${added} new note(s).`);
+    setTimeout(() => els.status.classList.add("hidden"), 3000);
+  } catch (err) {
+    console.error("Import failed", err);
+    showStatus("Import failed: " + err.message, true);
+  }
 }
 
 function visibleNotes() {
